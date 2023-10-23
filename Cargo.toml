@@ -1,0 +1,21 @@
+[workspace.package]
+authors = ["Noah Shomette <git@noahshomette.me>"]
+edition = "2021"
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+opt-level = 1
+
+[profile.release]
+lto = true
+codegen-units = 1
+
+[workspace]
+members = ["crates/bevy_state_curves"]
+# exclude = ["dist", "build", "assets", "credits"]
+default-members = ["crates/bevy_state_curves"]
+resolver = "2"
+
+[workspace.dependencies]
