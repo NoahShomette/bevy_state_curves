@@ -1,9 +1,11 @@
 use std::{collections::BTreeMap, ops::Bound};
 
+pub mod helpers;
 pub mod keyframe_trait;
 
 use bevy::{
     prelude::{Component, Entity, Resource},
+    reflect::Reflect,
     utils::HashMap,
 };
 use keyframe_trait::{LinearKeyFrame, PulseKeyframe, SteppedKeyframe};
@@ -29,7 +31,7 @@ pub enum CurveData {
 }
 
 impl CurveData {
-    /// Inserts a [`CurveKeyFrame`] if it matches the [`CurveData`]s [`CurveType`]
+    /// Inserts a [`CurveKeyFrame`] into itself
     pub fn insert(&mut self, tick: GameTick, data: CurveKeyFrame) {
         match (self, data) {
             (CurveData::Stepped(map), CurveKeyFrame::Stepped(data)) => {
@@ -103,12 +105,99 @@ impl CurveData {
                         None => return Some(CurveKeyFrame::Linear(prev_frame.1.clone())),
                     },
                 };
-                let ratio = ((tick as f32 - *prev_frame.0 as f32)
-                    / (*next_frame.0 as f32 - *prev_frame.0 as f32));
+                let ratio = (tick as f32 - *prev_frame.0 as f32)
+                    / (*next_frame.0 as f32 - *prev_frame.0 as f32);
 
                 Some(CurveKeyFrame::Linear(
                     prev_frame.1.lerp(&next_frame.1, ratio),
                 ))
+            }
+        }
+    }
+
+    /// Attempts to get the next curve from the requested tick. Returns the tick and the data if it exists
+    pub fn iter_future_curves(
+        &self,
+        tick: GameTick,
+    ) -> Box<dyn Iterator<Item = (GameTick, CurveKeyFrame)> + '_> {
+        match self {
+            CurveData::Stepped(map) => {
+                let new_map = map
+                    .range((Bound::Excluded(&tick), Bound::Unbounded))
+                    .map(|(tick, data)| (tick.clone(), CurveKeyFrame::Stepped(data.clone())));
+                Box::new(new_map)
+            }
+            CurveData::Pulse(map) => {
+                let new_map = map
+                    .range((Bound::Excluded(&tick), Bound::Unbounded))
+                    .map(|(tick, data)| (tick.clone(), CurveKeyFrame::Pulse(data.clone())));
+                Box::new(new_map)
+            }
+            CurveData::Linear(map) => {
+                let new_map = map
+                    .range((Bound::Excluded(&tick), Bound::Unbounded))
+                    .map(|(tick, data)| (tick.clone(), CurveKeyFrame::Linear(data.clone())));
+                Box::new(new_map)
+            }
+        }
+    }
+
+    /// Attempts to get the next curve from the requested tick. Returns the tick and the data if it exists
+    pub fn next_curve(&self, tick: GameTick) -> Option<(GameTick, CurveKeyFrame)> {
+        match self {
+            CurveData::Stepped(map) => {
+                let data = match map.range((Bound::Excluded(&tick), Bound::Unbounded)).next() {
+                    Some(data) => data,
+                    None => return None,
+                };
+
+                Some((data.0.clone(), CurveKeyFrame::Stepped(data.1.clone())))
+            }
+            CurveData::Pulse(map) => {
+                let data = match map.range((Bound::Excluded(&tick), Bound::Unbounded)).next() {
+                    Some(data) => data,
+                    None => return None,
+                };
+
+                Some((data.0.clone(), CurveKeyFrame::Pulse(data.1.clone())))
+            }
+            CurveData::Linear(map) => {
+                let data = match map.range((Bound::Excluded(&tick), Bound::Unbounded)).next() {
+                    Some(data) => data,
+                    None => return None,
+                };
+
+                Some((data.0.clone(), CurveKeyFrame::Linear(data.1.clone())))
+            }
+        }
+    }
+
+    /// Attempts to get the previous curve from the requested tick. Returns the tick and the data if it exists
+    pub fn prev_curve(&self, tick: GameTick) -> Option<(GameTick, CurveKeyFrame)> {
+        match self {
+            CurveData::Stepped(map) => {
+                let data = match map.range((Bound::Unbounded, Bound::Excluded(&tick))).next() {
+                    Some(data) => data,
+                    None => return None,
+                };
+
+                Some((data.0.clone(), CurveKeyFrame::Stepped(data.1.clone())))
+            }
+            CurveData::Pulse(map) => {
+                let data = match map.range((Bound::Unbounded, Bound::Excluded(&tick))).next() {
+                    Some(data) => data,
+                    None => return None,
+                };
+
+                Some((data.0.clone(), CurveKeyFrame::Pulse(data.1.clone())))
+            }
+            CurveData::Linear(map) => {
+                let data = match map.range((Bound::Unbounded, Bound::Excluded(&tick))).next() {
+                    Some(data) => data,
+                    None => return None,
+                };
+
+                Some((data.0.clone(), CurveKeyFrame::Linear(data.1.clone())))
             }
         }
     }
@@ -135,12 +224,39 @@ impl CurveKeyFrame {
         }
     }
 
+    /// Clones the data in self and returns it as a Box<dyn Reflect>
+    pub fn as_reflect(&self) -> Box<dyn Reflect> {
+        match self {
+            CurveKeyFrame::Stepped(data) => data.clone_value(),
+            CurveKeyFrame::Pulse(data) => data.clone_value(),
+            CurveKeyFrame::Linear(data) => data.clone_value(),
+        }
+    }
+
     /// Returns the type name of the underlying type of this keyframe
     pub fn type_name(&self) -> String {
         match self {
             CurveKeyFrame::Stepped(data) => data.type_name().to_owned(),
             CurveKeyFrame::Pulse(data) => data.type_name().to_owned(),
             CurveKeyFrame::Linear(data) => data.type_name().to_owned(),
+        }
+    }
+
+    /// Downcasts to the given type. Panics if it fails
+    pub fn downcast<T: 'static>(&self) -> &T {
+        match self {
+            CurveKeyFrame::Stepped(data) => data.self_as_any().downcast_ref::<T>().unwrap(),
+            CurveKeyFrame::Pulse(data) => data.self_as_any().downcast_ref::<T>().unwrap(),
+            CurveKeyFrame::Linear(data) => data.self_as_any().downcast_ref::<T>().unwrap(),
+        }
+    }
+
+    /// Attempts to downcasts to the given type, returning Some if it succeds and None if it fails
+    pub fn try_downcast<T: 'static>(&self) -> Option<&T> {
+        match self {
+            CurveKeyFrame::Stepped(data) => data.self_as_any().downcast_ref::<T>(),
+            CurveKeyFrame::Pulse(data) => data.self_as_any().downcast_ref::<T>(),
+            CurveKeyFrame::Linear(data) => data.self_as_any().downcast_ref::<T>(),
         }
     }
 }
@@ -238,15 +354,56 @@ impl ObjectState {
 
     /// Adds a new keyframe to the curve for the given [`GameTick`].
     ///
-    /// # Panics if the curve has not been registered before now
+    /// # Panics
+    /// - If the insert keyframe does not match the registered component type
+    ///
+    /// TODO: See if theres a way to make this generic to accept a T of any keyframe and it automatically inserts it
     pub fn add_keyframe(&mut self, curve_name: &str, tick: GameTick, keyframe: CurveKeyFrame) {
         match self.curves.get_mut(curve_name) {
-            Some((_, map)) => map.insert(tick, keyframe),
+            Some((info, map)) => {
+                if info.component_type_name != keyframe.type_name() {
+                    panic!(
+                        "Attempted to insert a different component type into curve {:?}",
+                        curve_name
+                    );
+                }
+                map.insert(tick, keyframe);
+            }
             None => {
                 self.register_new_curve(curve_name, keyframe.curve_type(), keyframe.type_name());
                 self.add_keyframe(curve_name, tick, keyframe);
             }
         }
+    }
+
+    /// Helper function to insert a [`SteppedKeyFrame`] into a curve for a specific tick
+    pub fn add_stepped_keyframe<T: SteppedKeyframe>(
+        &mut self,
+        curve_name: &str,
+        tick: GameTick,
+        keyframe: T,
+    ) {
+        self.add_keyframe(curve_name, tick, CurveKeyFrame::Stepped(Box::new(keyframe)));
+    }
+
+    /// Helper function to insert a [`LinearKeyFrame`] into a curve for a specific tick
+    pub fn add_linear_keyframe<T: LinearKeyFrame>(
+        &mut self,
+        curve_name: &str,
+        tick: GameTick,
+        keyframe: T,
+    ) {
+        self.add_keyframe(curve_name, tick, CurveKeyFrame::Linear(Box::new(keyframe)));
+    }
+
+    /// Helper function to insert a [`PulseKeyframe`] into a curve for a specific tick
+    pub fn add_pulse_keyframe<T: PulseKeyframe>(
+        &mut self,
+        curve_name: &str,
+        tick: GameTick,
+        keyframe: T,
+    ) {
+        self.add_keyframe(curve_name, tick, CurveKeyFrame::Pulse(Box::new(keyframe)));
     }
 
     /// Removes the keyframe from the given [`GameTick`] and returns it if it exists.
