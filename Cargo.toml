@@ -7,6 +7,7 @@ documentation = "https://docs.rs/bevy_state_curves"
 homepage = "https://github.com/NoahShomette/bevy_state_curves"
 repository = "https://github.com/NoahShomette/bevy_state_curves"
 description = "A state saving and management crate for the Bevy Game Engine saving via curve keyframes"
+readme = "README.md"
 
 [profile.dev.package."*"]
 opt-level = 3
