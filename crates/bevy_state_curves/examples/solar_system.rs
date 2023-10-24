@@ -461,23 +461,32 @@ fn ui(
                     commands.remove_resource::<SimulateGame>();
                 }
             }
+
+            let response = ui
+                .button("Skip Forward")
+                .interact(egui::Sense::click_and_drag());
+
+            if response.dragged() {
+                commands.insert_resource(ViewedTick(
+                    (viewed_tick.0 + 1).clamp(0, simulation_tick.0 + FUTURE_SIMULATION_TICKS),
+                ));
+            }
+
+            let response = ui
+                .button("Skip Back")
+                .interact(egui::Sense::click_and_drag());
+
+            if response.dragged() {
+                commands.insert_resource(ViewedTick(
+                    (viewed_tick.0.saturating_sub(1))
+                        .clamp(0, simulation_tick.0 + FUTURE_SIMULATION_TICKS),
+                ));
+            }
+
             if simulation_tick.0 != viewed_tick.0 {
                 if ui.button("View Current Animation").clicked() {
                     commands.insert_resource(ViewedTick(simulation_tick.0));
                 }
-            }
-
-            if ui.button("Skip Forward").clicked() {
-                commands.insert_resource(ViewedTick(
-                    (viewed_tick.0 + 100).clamp(0, simulation_tick.0 + FUTURE_SIMULATION_TICKS),
-                ));
-            }
-
-            if ui.button("Skip Back").clicked() {
-                commands.insert_resource(ViewedTick(
-                    (viewed_tick.0.saturating_sub(100))
-                        .clamp(0, simulation_tick.0 + FUTURE_SIMULATION_TICKS),
-                ));
             }
         });
 }
