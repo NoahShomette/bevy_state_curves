@@ -2,7 +2,7 @@
 authors = ["Noah Shomette <git@noahshomette.me>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
-license-file = "LICENSE.txt"
+license-file = "LICENSE"
 documentation = "https://docs.rs/bevy_state_curves"
 homepage = "https://github.com/NoahShomette/bevy_state_curves"
 repository = "https://github.com/NoahShomette/bevy_state_curves"
