@@ -19,7 +19,36 @@ fn criterion_benchmark(c: &mut Criterion) {
     object_state.add_stepped_keyframe("BodyOrbit", 0, BodyOrbit { orbits: 0 });
     object_state.add_stepped_keyframe("BodyOrbit", 60, BodyOrbit { orbits: 1 });
     c.bench_function("fib 20", |b| {
-        b.iter(|| object_state.get_object_state_for_tick(20))
+        b.iter(|| {
+            let frame = object_state
+                .get_curves("BodyAngle")
+                .unwrap()
+                .1
+                .get_state(20)
+                .unwrap();
+            let angle = frame.downcast::<BodyAngle>();
+            let frame = object_state
+                .get_curves("BodySpeed")
+                .unwrap()
+                .1
+                .get_state(20)
+                .unwrap();
+            let speed = frame.downcast::<BodySpeed>();
+            let frame = object_state
+                .get_curves("BodyRadius")
+                .unwrap()
+                .1
+                .get_state(20)
+                .unwrap();
+            let radius = frame.downcast::<BodyRadius>();
+            let frame = object_state
+                .get_curves("BodyOrbit")
+                .unwrap()
+                .1
+                .get_state(20)
+                .unwrap();
+            let orbit = frame.downcast::<BodyOrbit>();
+        })
     });
 }
 
