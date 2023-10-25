@@ -1,5 +1,6 @@
 use std::{collections::BTreeMap, ops::Bound};
 
+pub mod curves;
 pub mod helpers;
 pub mod keyframe_trait;
 
@@ -9,7 +10,7 @@ use bevy::{
     utils::HashMap,
 };
 use keyframe_trait::{LinearKeyFrame, PulseKeyframe, SteppedKeyframe};
-
+/*
 /// Different types of Curves that can be saved
 pub enum CurveType {
     /// Curve without any interpolation. Each keyframe is distinct and there is no interpolation between it and the next keyframe
@@ -462,5 +463,5 @@ impl ObjectState {
 pub struct ObjectStateCurveMap {
     object_state: HashMap<ObjectId, Entity>,
 }
-
+*/
 pub type GameTick = u64;
