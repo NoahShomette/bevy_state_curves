@@ -16,3 +16,8 @@ bevy = "0.11.3"
 
 [dev-dependencies]
 bevy_egui = "0.22.0"
+criterion = { version = "0.5.1", features = ["html_reports"] }
+
+[[bench]]
+name = "benchmarks"
+harness = false
