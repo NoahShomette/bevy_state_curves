@@ -218,8 +218,9 @@ fn update_viewed_tick(
 
 /// This simulates all the bodies into the future every tick.
 ///
-/// It needs to iterate through every body and get each bodies curves info for tick 300.
-/// It then checks if there are any keyframes
+/// It needs to iterate through every body and get each bodies curves info for current tick + 300.
+/// It then checks if there are any keyframes that exist past that tick. If there are not then it goes to the furthest tick and
+/// simulates the correct distance after and so on
 fn simulate_bodies(
     simulation_tick: Res<SimulationTick>,
     mut bodies: Query<(Entity, &mut ObjectState)>,
@@ -291,7 +292,7 @@ fn update_body_position(mut bodies: Query<(&mut Transform, &BodyAngle, &BodyOrbi
 
 /// Updates all bodies to have the correct components for the given tick
 fn update_body_components_for_viewed_tick(
-    mut bodies: Query<(Entity, &ObjectState)>,
+    bodies: Query<(Entity, &ObjectState)>,
     viewed_tick: Res<ViewedTick>,
     mut last_state_updated_tick: ResMut<LastStateUpdatedTick>,
     mut commands: Commands,
