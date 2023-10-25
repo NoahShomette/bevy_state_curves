@@ -55,7 +55,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .orbit
         .insert_keyframe(60, BodyOrbit { orbits: 1 });
     c.bench_function("fib 20", |b| {
-        b.iter(|| object_state.get_object_state_for_tick(20))
+        b.iter(|| {
+            object_state.angle.get_state(20);
+            object_state.radius.get_state(20);
+            object_state.speed.get_state(20);
+            object_state.orbit.get_state(20);
+        })
     });
 }
 
