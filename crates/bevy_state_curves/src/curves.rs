@@ -176,7 +176,7 @@ impl<T: LinearKeyframe<T>> CurveTrait<T> for LinearCurve<T> {
         };
 
         let next_frame = match self.get_keyframe(tick) {
-            Some(data) => (&tick, data),
+            Some(data) => return Some(data.clone()),
             None => match self.next_keyframe(tick) {
                 Some(data) => data,
                 None => return Some(prev_frame.1.clone()),
