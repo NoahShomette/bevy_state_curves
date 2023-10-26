@@ -2,58 +2,73 @@ use bevy::{
     prelude::{Component, ReflectComponent},
     reflect::Reflect,
 };
-use bevy_state_curves::{
-    keyframe_trait::{LinearKeyFrame, SteppedKeyframe},
-    ObjectState,
+use bevy_state_curves::prelude::{
+    CurveTrait, LinearCurve, LinearKeyFrame, SteppedCurve, SteppedKeyframe,
 };
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
 
-fn criterion_benchmark(c: &mut Criterion) {
-    let mut object_state = ObjectState::new(0);
-    object_state.add_stepped_keyframe("BodySpeed", 0, BodySpeed { speed: 60 });
-    object_state.add_linear_keyframe("BodyRadius", 0, BodyRadius { radius: 50.0 });
+pub fn criterion_benchmark(c: &mut Criterion) {
+    let mut object_state = BodyCurves::new();
+    object_state
+        .speed
+        .insert_keyframe(0, BodySpeed { speed: 60 });
+    object_state
+        .radius
+        .insert_keyframe(0, BodyRadius { radius: 50.0 });
+    object_state
+        .angle
+        .insert_keyframe(0, BodyAngle { angle: 0.0 });
+    object_state
+        .angle
+        .insert_keyframe(60, BodyAngle { angle: 6.0 });
 
-    object_state.add_linear_keyframe("BodyAngle", 0, BodyAngle { angle: 0.0 });
-    object_state.add_linear_keyframe("BodyAngle", 60, BodyAngle { angle: 6.0 });
-
-    object_state.add_stepped_keyframe("BodyOrbit", 0, BodyOrbit { orbits: 0 });
-    object_state.add_stepped_keyframe("BodyOrbit", 60, BodyOrbit { orbits: 1 });
+    object_state
+        .orbit
+        .insert_keyframe(0, BodyOrbit { orbits: 0 });
+    object_state
+        .orbit
+        .insert_keyframe(60, BodyOrbit { orbits: 1 });
+    object_state.rotation_point.insert_keyframe(
+        0,
+        BodyRotationPoint {
+            point_x: 0.0,
+            point_y: 0.0,
+        },
+    );
     c.bench_function("fib 20", |b| {
         b.iter(|| {
-            let frame = object_state
-                .get_curves("BodyAngle")
-                .unwrap()
-                .1
-                .get_state(20)
-                .unwrap();
-            let angle = frame.downcast::<BodyAngle>();
-            let frame = object_state
-                .get_curves("BodySpeed")
-                .unwrap()
-                .1
-                .get_state(20)
-                .unwrap();
-            let speed = frame.downcast::<BodySpeed>();
-            let frame = object_state
-                .get_curves("BodyRadius")
-                .unwrap()
-                .1
-                .get_state(20)
-                .unwrap();
-            let radius = frame.downcast::<BodyRadius>();
-            let frame = object_state
-                .get_curves("BodyOrbit")
-                .unwrap()
-                .1
-                .get_state(20)
-                .unwrap();
-            let orbit = frame.downcast::<BodyOrbit>();
+            let _angle: BodyAngle = object_state.angle.get_state(20).unwrap();
+            let _radius: BodyRadius = object_state.radius.get_state(20).unwrap();
+            let _rotation: BodyRotationPoint = object_state.rotation_point.get_state(20).unwrap();
+            let _speed: BodySpeed = object_state.speed.get_state(20).unwrap();
+            let _orbit: BodyOrbit = object_state.orbit.get_state(20).unwrap();
         })
     });
 }
 
 criterion_group!(benches, criterion_benchmark);
 criterion_main!(benches);
+
+#[derive(Component)]
+struct BodyCurves {
+    angle: LinearCurve<BodyAngle>,
+    radius: LinearCurve<BodyRadius>,
+    rotation_point: LinearCurve<BodyRotationPoint>,
+    speed: SteppedCurve<BodySpeed>,
+    orbit: SteppedCurve<BodyOrbit>,
+}
+
+impl BodyCurves {
+    fn new() -> BodyCurves {
+        BodyCurves {
+            angle: LinearCurve::new(),
+            radius: LinearCurve::new(),
+            rotation_point: LinearCurve::new(),
+            speed: SteppedCurve::new(),
+            orbit: SteppedCurve::new(),
+        }
+    }
+}
 
 /// This component tracks the current angle of the body
 #[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
@@ -62,18 +77,12 @@ pub struct BodyAngle {
     angle: f32,
 }
 
-impl LinearKeyFrame for BodyAngle {
-    fn lerp(
-        &self,
-        next_frame_state: &Box<dyn LinearKeyFrame>,
-        ratio: f32,
-    ) -> Box<dyn LinearKeyFrame> {
-        let Some(other_frame) = next_frame_state.self_as_any().downcast_ref::<Self>() else {
-            panic!("Did not have a valid keyframe of the same type");
-        };
-        Box::new(BodyAngle {
-            angle: self.angle + (other_frame.angle - self.angle) * ratio as f32,
-        })
+impl LinearKeyFrame<BodyAngle> for BodyAngle {
+    fn lerp(&self, next_frame_state: &BodyAngle, ratio: f64) -> BodyAngle {
+        BodyAngle {
+            angle: self.angle + (next_frame_state.angle - self.angle) * ratio as f32,
+        }
+
     }
 }
 
@@ -84,18 +93,11 @@ pub struct BodyRadius {
     radius: f32,
 }
 
-impl LinearKeyFrame for BodyRadius {
-    fn lerp(
-        &self,
-        next_frame_state: &Box<dyn LinearKeyFrame>,
-        ratio: f32,
-    ) -> Box<dyn LinearKeyFrame> {
-        let Some(other_frame) = next_frame_state.self_as_any().downcast_ref::<Self>() else {
-            panic!("Did not have a valid keyframe of the same type");
-        };
-        Box::new(BodyRadius {
-            radius: self.radius + (other_frame.radius - self.radius) * ratio as f32,
-        })
+impl LinearKeyFrame<BodyRadius> for BodyRadius {
+    fn lerp(&self, next_frame_state: &BodyRadius, ratio: f64) -> BodyRadius {
+        BodyRadius {
+            radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
+        }
     }
 }
 
@@ -107,19 +109,13 @@ pub struct BodyRotationPoint {
     point_y: f32,
 }
 
-impl LinearKeyFrame for BodyRotationPoint {
-    fn lerp(
-        &self,
-        next_frame_state: &Box<dyn LinearKeyFrame>,
-        ratio: f32,
-    ) -> Box<dyn LinearKeyFrame> {
-        let Some(other_frame) = next_frame_state.self_as_any().downcast_ref::<Self>() else {
-            panic!("Did not have a valid keyframe of the same type");
-        };
-        Box::new(BodyRotationPoint {
-            point_x: self.point_x + (other_frame.point_x - self.point_x) * ratio as f32,
-            point_y: self.point_y + (other_frame.point_y - self.point_y) * ratio as f32,
-        })
+impl LinearKeyFrame<BodyRotationPoint> for BodyRotationPoint {
+    fn lerp(&self, next_frame_state: &BodyRotationPoint, ratio: f64) -> BodyRotationPoint {
+        BodyRotationPoint {
+            point_x: self.point_x + (next_frame_state.point_x - self.point_x) * ratio as f32,
+            point_y: self.point_y + (next_frame_state.point_y - self.point_y) * ratio as f32,
+        }
+
     }
 }
 
@@ -130,7 +126,8 @@ pub struct BodySpeed {
     speed: u32,
 }
 
-impl SteppedKeyframe for BodySpeed {}
+impl SteppedKeyframe<BodySpeed> for BodySpeed {}
+
 
 /// This component tracks how many orbits the object has done
 #[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
@@ -139,4 +136,5 @@ pub struct BodyOrbit {
     orbits: u32,
 }
 
-impl SteppedKeyframe for BodyOrbit {}
+impl SteppedKeyframe<BodyOrbit> for BodyOrbit {}
+
