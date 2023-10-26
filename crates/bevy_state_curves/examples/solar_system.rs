@@ -1,6 +1,6 @@
 use bevy::{
     prelude::{
-        default, unwrap, App, AssetServer, Camera2dBundle, Commands, Component, Entity, FixedTime,
+        default, App, AssetServer, Camera2dBundle, Commands, Component, Entity, FixedTime,
         FixedUpdate, Query, ReflectComponent, Res, ResMut, Resource, Startup, Transform, Update,
         Vec2, Vec3,
     },
@@ -8,11 +8,8 @@ use bevy::{
     sprite::SpriteBundle,
     DefaultPlugins,
 };
-use bevy_state_curves::{
-    curves::{LinearCurve, SteppedCurve},
-    helpers::InsertReflect,
-    keyframe_trait::{LinearKeyFrame, SteppedKeyframe},
-    GameTick,
+use bevy_state_curves::prelude::{
+    CurveTrait, GameTick, LinearCurve, LinearKeyFrame, SteppedCurve, SteppedKeyframe,
 };
 
 use bevy_egui::{
@@ -68,6 +65,13 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Camera2dBundle::default());
     {
         let mut object_state = BodyCurves::new();
+        object_state.rotation_point.insert_keyframe(
+            0,
+            BodyRotationPoint {
+                point_x: 0.0,
+                point_y: 0.0,
+            },
+        );
         object_state
             .speed
             .insert_keyframe(0, BodySpeed { speed: 60 });
@@ -100,18 +104,19 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
                 ..default()
             },
+            frames,
         ));
-
-        for frame in frames {
-            commands.add(InsertReflect {
-                entity: body,
-                component: frame,
-            });
-        }
     }
 
     {
         let mut object_state = BodyCurves::new();
+        object_state.rotation_point.insert_keyframe(
+            0,
+            BodyRotationPoint {
+                point_x: 0.0,
+                point_y: 0.0,
+            },
+        );
         object_state
             .speed
             .insert_keyframe(0, BodySpeed { speed: 30 });
@@ -144,18 +149,19 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
                 ..default()
             },
+            frames,
         ));
-
-        for frame in frames {
-            commands.add(InsertReflect {
-                entity: body,
-                component: frame,
-            });
-        }
     }
 
     {
         let mut object_state = BodyCurves::new();
+        object_state.rotation_point.insert_keyframe(
+            0,
+            BodyRotationPoint {
+                point_x: 0.0,
+                point_y: 0.0,
+            },
+        );
         object_state
             .speed
             .insert_keyframe(0, BodySpeed { speed: 120 });
@@ -187,18 +193,19 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 transform: Transform::from_scale(Vec3::new(2.0, 2.0, 2.0)),
                 ..default()
             },
+            frames,
         ));
-
-        for frame in frames {
-            commands.add(InsertReflect {
-                entity: body,
-                component: frame,
-            });
-        }
     }
 
     {
         let mut object_state = BodyCurves::new();
+        object_state.rotation_point.insert_keyframe(
+            0,
+            BodyRotationPoint {
+                point_x: 0.0,
+                point_y: 0.0,
+            },
+        );
         object_state
             .speed
             .insert_keyframe(0, BodySpeed { speed: 25 });
@@ -230,14 +237,8 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 transform: Transform::from_scale(Vec3::new(2.0, 2.0, 2.0)),
                 ..default()
             },
+            frames,
         ));
-
-        for frame in frames {
-            commands.add(InsertReflect {
-                entity: body,
-                component: frame,
-            });
-        }
     }
 }
 
@@ -270,7 +271,7 @@ fn simulate_bodies(
     simulation_tick: Res<SimulationTick>,
     mut bodies: Query<(Entity, &mut BodyCurves)>,
 ) {
-    for (entity, mut object_state) in bodies.iter_mut() {
+    for (_entity, mut object_state) in bodies.iter_mut() {
         let mut farthest_state = simulation_tick.0;
         let mut last_angle = 0f32;
 
@@ -309,7 +310,7 @@ fn simulate_bodies(
 
 /// Updates all bodies positions to the correct spot based on their current components.
 fn update_body_position(mut bodies: Query<(&mut Transform, &BodyAngle, &BodyOrbit, &BodyRadius)>) {
-    for (mut transform, angle, orbit, radius) in bodies.iter_mut() {
+    for (mut transform, angle, _orbit, radius) in bodies.iter_mut() {
         let x = angle.angle.cos() * radius.radius;
         let y = angle.angle.sin() * radius.radius;
         transform.translation = Vec2::new(x, y).extend(1.0)
@@ -328,13 +329,7 @@ fn update_body_components_for_viewed_tick(
     }
     for (entity, object_state) in bodies.iter() {
         let frames = object_state.get_object_state_for_tick(viewed_tick.0);
-
-        for frame in frames {
-            commands.add(InsertReflect {
-                entity: entity,
-                component: frame,
-            });
-        }
+        commands.entity(entity).insert(frames);
     }
 
     last_state_updated_tick.0 = viewed_tick.0;
@@ -375,14 +370,23 @@ impl BodyCurves {
         }
     }
 
-    fn get_object_state_for_tick(&self, tick: GameTick) -> Vec<Box<dyn Reflect>> {
-        let mut vec = Vec::with_capacity(5);
-        vec.push(Box::new(self.angle.get_state(tick).unwrap()) as Box<dyn Reflect>);
-        vec.push(Box::new(self.radius.get_state(tick).unwrap()) as Box<dyn Reflect>);
-        //vec.push(Box::new(self.rotation_point.get_state(tick).unwrap()) as Box<dyn Reflect>);
-        vec.push(Box::new(self.speed.get_state(tick).unwrap()) as Box<dyn Reflect>);
-        vec.push(Box::new(self.orbit.get_state(tick).unwrap()) as Box<dyn Reflect>);
-        vec
+    fn get_object_state_for_tick(
+        &self,
+        tick: GameTick,
+    ) -> (
+        BodyAngle,
+        BodyRadius,
+        BodyRotationPoint,
+        BodySpeed,
+        BodyOrbit,
+    ) {
+        (
+            self.angle.get_state(tick).unwrap(),
+            self.radius.get_state(tick).unwrap(),
+            self.rotation_point.get_state(tick).unwrap(),
+            self.speed.get_state(tick).unwrap(),
+            self.orbit.get_state(tick).unwrap(),
+        )
     }
 }
 
@@ -394,12 +398,9 @@ pub struct BodyAngle {
 }
 
 impl LinearKeyFrame<BodyAngle> for BodyAngle {
-    fn lerp(&self, next_frame_state: &BodyAngle, ratio: f32) -> BodyAngle {
-        let Some(other_frame) = next_frame_state.self_as_any().downcast_ref::<Self>() else {
-            panic!("Did not have a valid keyframe of the same type");
-        };
+    fn lerp(&self, next_frame_state: &BodyAngle, ratio: f64) -> BodyAngle {
         BodyAngle {
-            angle: self.angle + (other_frame.angle - self.angle) * ratio as f32,
+            angle: self.angle + (next_frame_state.angle - self.angle) * ratio as f32,
         }
     }
 }
@@ -412,12 +413,9 @@ pub struct BodyRadius {
 }
 
 impl LinearKeyFrame<BodyRadius> for BodyRadius {
-    fn lerp(&self, next_frame_state: &BodyRadius, ratio: f32) -> BodyRadius {
-        let Some(other_frame) = next_frame_state.self_as_any().downcast_ref::<Self>() else {
-            panic!("Did not have a valid keyframe of the same type");
-        };
+    fn lerp(&self, next_frame_state: &BodyRadius, ratio: f64) -> BodyRadius {
         BodyRadius {
-            radius: self.radius + (other_frame.radius - self.radius) * ratio as f32,
+            radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
         }
     }
 }
@@ -431,13 +429,10 @@ pub struct BodyRotationPoint {
 }
 
 impl LinearKeyFrame<BodyRotationPoint> for BodyRotationPoint {
-    fn lerp(&self, next_frame_state: &BodyRotationPoint, ratio: f32) -> BodyRotationPoint {
-        let Some(other_frame) = next_frame_state.self_as_any().downcast_ref::<Self>() else {
-            panic!("Did not have a valid keyframe of the same type");
-        };
+    fn lerp(&self, next_frame_state: &BodyRotationPoint, ratio: f64) -> BodyRotationPoint {
         BodyRotationPoint {
-            point_x: self.point_x + (other_frame.point_x - self.point_x) * ratio as f32,
-            point_y: self.point_y + (other_frame.point_y - self.point_y) * ratio as f32,
+            point_x: self.point_x + (next_frame_state.point_x - self.point_x) * ratio as f32,
+            point_y: self.point_y + (next_frame_state.point_y - self.point_y) * ratio as f32,
         }
     }
 }
