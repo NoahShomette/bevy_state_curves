@@ -6,25 +6,31 @@ The implementation of this crate is focused on compile time curves and integrati
 
 ## Usage
 
-1. Create a new curve component
+1. Create a new curve keyframe type
 
 ```rust
-#[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
-#[reflect(Component)]
+/// Only Clone is needed for the CurveKeyframes. I also recommend `Component` as it is an ergonomic way to handle having the current interpolated state be the state thats on the entity physically
+#[derive(Clone)]
 pub struct ObjectRadius {
     radius: f32,
 }
 
-impl LinearKeyFrame<ObjectRadius> for ObjectRadius {
+impl LinearKeyframe<ObjectRadius> for ObjectRadius {
     fn lerp(&self, next_frame_state: &ObjectRadius, ratio: f64) -> ObjectRadius {
         ObjectRadius {
             radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
         }
     }
 }
+
+/// Generally only implement one Keyframe type for a specific type of state. Nothing technically stops you from doing all three for one but theres absolutely no reason to do that.
+impl SteppedKeyframe<ObjectRadius> for ObjectRadius {}
+
+impl PulseKeyframe<ObjectRadius> for ObjectRadius {}
+
 ```
 
-2. Insert it into an entity
+2. Insert it into an entity using the right Curve Component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
 
 ```rust
      commands.entity(entity).insert(LinearCurve<ObjectRadius>::new());
@@ -56,7 +62,7 @@ See the [solar_system.rs](https://github.com/NoahShomette/bevy_state_curves/blob
 
 ## Curves
 
-This crate supports three types of curves. See the docs.rs documentation for each one for details on how they work.
+This crate supports three types of curves. See the docs.rs documentation for each one for details on how they work. Each of these is a Bevy Component.
 
 - `LinearCurve<T: LinearKeyFrame>`
   - Linearly interpolates state between each keyframe on either side of it.

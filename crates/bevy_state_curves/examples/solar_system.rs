@@ -1,15 +1,13 @@
 use bevy::{
     prelude::{
         default, App, AssetServer, Camera2dBundle, Commands, Component, Entity, FixedTime,
-        FixedUpdate, Query, ReflectComponent, Res, ResMut, Resource, Startup, Transform, Update,
-        Vec2, Vec3,
+        FixedUpdate, Query, Res, ResMut, Resource, Startup, Transform, Update, Vec2, Vec3,
     },
-    reflect::Reflect,
     sprite::SpriteBundle,
     DefaultPlugins,
 };
 use bevy_state_curves::prelude::{
-    CurveTrait, GameTick, LinearCurve, LinearKeyFrame, SteppedCurve, SteppedKeyframe,
+    CurveTrait, GameTick, LinearCurve, LinearKeyframe, SteppedCurve, SteppedKeyframe,
 };
 
 use bevy_egui::{
@@ -38,10 +36,6 @@ fn main() {
         FixedUpdate,
         (update_viewed_tick, simulation_tick, simulate_bodies),
     );
-    app.register_type::<BodyAngle>();
-    app.register_type::<BodyOrbit>();
-    app.register_type::<BodySpeed>();
-    app.register_type::<BodyRadius>();
 
     app.insert_resource(ViewedTick(0));
     app.insert_resource(DisplayTimeForward);
@@ -391,13 +385,12 @@ impl BodyCurves {
 }
 
 /// This component tracks the current angle of the body
-#[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
-#[reflect(Component)]
+#[derive(Clone, Component)]
 pub struct BodyAngle {
     angle: f32,
 }
 
-impl LinearKeyFrame<BodyAngle> for BodyAngle {
+impl LinearKeyframe<BodyAngle> for BodyAngle {
     fn lerp(&self, next_frame_state: &BodyAngle, ratio: f64) -> BodyAngle {
         BodyAngle {
             angle: self.angle + (next_frame_state.angle - self.angle) * ratio as f32,
@@ -406,13 +399,12 @@ impl LinearKeyFrame<BodyAngle> for BodyAngle {
 }
 
 /// This component tracks the current angle of the body
-#[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
-#[reflect(Component)]
+#[derive(Clone, Component)]
 pub struct BodyRadius {
     radius: f32,
 }
 
-impl LinearKeyFrame<BodyRadius> for BodyRadius {
+impl LinearKeyframe<BodyRadius> for BodyRadius {
     fn lerp(&self, next_frame_state: &BodyRadius, ratio: f64) -> BodyRadius {
         BodyRadius {
             radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
@@ -421,14 +413,13 @@ impl LinearKeyFrame<BodyRadius> for BodyRadius {
 }
 
 /// This component tracks the position that this body is rotating around
-#[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
-#[reflect(Component)]
+#[derive(Clone, Component)]
 pub struct BodyRotationPoint {
     point_x: f32,
     point_y: f32,
 }
 
-impl LinearKeyFrame<BodyRotationPoint> for BodyRotationPoint {
+impl LinearKeyframe<BodyRotationPoint> for BodyRotationPoint {
     fn lerp(&self, next_frame_state: &BodyRotationPoint, ratio: f64) -> BodyRotationPoint {
         BodyRotationPoint {
             point_x: self.point_x + (next_frame_state.point_x - self.point_x) * ratio as f32,
@@ -438,8 +429,7 @@ impl LinearKeyFrame<BodyRotationPoint> for BodyRotationPoint {
 }
 
 /// This component represents how many ticks it takes to complete a full orbit
-#[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
-#[reflect(Component)]
+#[derive(Clone, Component)]
 pub struct BodySpeed {
     speed: u32,
 }
@@ -447,8 +437,7 @@ pub struct BodySpeed {
 impl SteppedKeyframe<BodySpeed> for BodySpeed {}
 
 /// This component tracks how many orbits the object has done
-#[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
-#[reflect(Component)]
+#[derive(Clone, Component)]
 pub struct BodyOrbit {
     orbits: u32,
 }

@@ -57,7 +57,7 @@ use bevy::{
 
 pub mod prelude {
     pub use super::curves::{CurveTrait, LinearCurve, PulseCurve, SteppedCurve};
-    pub use super::keyframe_trait::{LinearKeyFrame, PulseKeyframe, SteppedKeyframe};
+    pub use super::keyframe_trait::{LinearKeyframe, PulseKeyframe, SteppedKeyframe};
     pub use super::GameTick;
 }
 

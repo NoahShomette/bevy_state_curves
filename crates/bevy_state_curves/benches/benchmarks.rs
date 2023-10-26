@@ -3,7 +3,7 @@ use bevy::{
     reflect::Reflect,
 };
 use bevy_state_curves::prelude::{
-    CurveTrait, LinearCurve, LinearKeyFrame, SteppedCurve, SteppedKeyframe,
+    CurveTrait, LinearCurve, LinearKeyframe, SteppedCurve, SteppedKeyframe,
 };
 use criterion::{criterion_group, criterion_main, Criterion};
 
@@ -77,7 +77,7 @@ pub struct BodyAngle {
     angle: f32,
 }
 
-impl LinearKeyFrame<BodyAngle> for BodyAngle {
+impl LinearKeyframe<BodyAngle> for BodyAngle {
     fn lerp(&self, next_frame_state: &BodyAngle, ratio: f64) -> BodyAngle {
         BodyAngle {
             angle: self.angle + (next_frame_state.angle - self.angle) * ratio as f32,
@@ -93,7 +93,7 @@ pub struct BodyRadius {
     radius: f32,
 }
 
-impl LinearKeyFrame<BodyRadius> for BodyRadius {
+impl LinearKeyframe<BodyRadius> for BodyRadius {
     fn lerp(&self, next_frame_state: &BodyRadius, ratio: f64) -> BodyRadius {
         BodyRadius {
             radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
@@ -109,7 +109,7 @@ pub struct BodyRotationPoint {
     point_y: f32,
 }
 
-impl LinearKeyFrame<BodyRotationPoint> for BodyRotationPoint {
+impl LinearKeyframe<BodyRotationPoint> for BodyRotationPoint {
     fn lerp(&self, next_frame_state: &BodyRotationPoint, ratio: f64) -> BodyRotationPoint {
         BodyRotationPoint {
             point_x: self.point_x + (next_frame_state.point_x - self.point_x) * ratio as f32,
@@ -137,4 +137,3 @@ pub struct BodyOrbit {
 }
 
 impl SteppedKeyframe<BodyOrbit> for BodyOrbit {}
-

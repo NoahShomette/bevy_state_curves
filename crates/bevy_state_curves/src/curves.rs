@@ -3,7 +3,7 @@ use std::{collections::BTreeMap, ops::Bound};
 use bevy::prelude::Component;
 
 use crate::{
-    keyframe_trait::{LinearKeyFrame, PulseKeyframe, SteppedKeyframe},
+    keyframe_trait::{LinearKeyframe, PulseKeyframe, SteppedKeyframe},
     GameTick,
 };
 
@@ -125,11 +125,11 @@ pub trait CurveTrait<T> {
 /// - If there are no past keyframes then no state is returned.
 /// - Otherwise the returned state is a lerped representation of what the state should be on that tick.
 #[derive(Component)]
-pub struct LinearCurve<T: LinearKeyFrame<T>> {
+pub struct LinearCurve<T: LinearKeyframe<T>> {
     curve: Curve<T>,
 }
 
-impl<T: LinearKeyFrame<T>> CurveTrait<T> for LinearCurve<T> {
+impl<T: LinearKeyframe<T>> CurveTrait<T> for LinearCurve<T> {
     fn new() -> LinearCurve<T> {
         LinearCurve {
             curve: Curve::new(),
@@ -190,7 +190,7 @@ impl<T: LinearKeyFrame<T>> CurveTrait<T> for LinearCurve<T> {
     }
 }
 
-impl<T: LinearKeyFrame<T>> LinearCurve<T> {}
+impl<T: LinearKeyframe<T>> LinearCurve<T> {}
 
 /// A stepped curve containing all keyframes that implement [`SteppedKeyframe`]
 ///
