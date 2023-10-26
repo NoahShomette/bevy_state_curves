@@ -48,6 +48,23 @@ impl LinearKeyFrame<ObjectRadius> for ObjectRadius {
     }
 ```
 
+### GameTick
+
+This crate relies on an internal `GameTick` type alias of a u64 to create a sense of time. Higher ticks are considered later/older chronologically than lower numbered ticks. When using this crate you will have to decide what the ticks will look like in your crate and implement those systems yourself. This crate does nothing with `GameTick` other than provide it and use it as an identifier of state keyframes.
+
+See the [solar_system.rs](https://github.com/NoahShomette/bevy_state_curves/blob/main/crates/bevy_state_curves/examples/solar_system.rs) example for an example of using `GameTick` in a game concept.
+
+## Curves
+
+This crate supports three types of curves. See the docs.rs documentation for each one for details on how they work.
+
+- `LinearCurve<T: LinearKeyFrame>`
+  - Linearly interpolates state between each keyframe on either side of it.
+- `SteppedCurve<T: SteppedKeyFrame>`
+  - Flat state between keyframes, state is always the same as the last keyframe.
+- `PulseCurve<T: PulseKeyFrame>`
+  - Keyframes are only valid on the tick that they exist on.
+
 ## Future Plans
 
 `Bevy_State_Curves` is created for a specific open source project idea I have. As that project takes shape I will eventually link it here. Because of this features to this crate will be driven by features needed for that project. If you randomly and terribly decide to use this crate, let me know if theres something wrong, it needs updating, or even better, make prs and issues as needed!
