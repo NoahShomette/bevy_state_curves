@@ -82,7 +82,6 @@ impl LinearKeyframe<BodyAngle> for BodyAngle {
         BodyAngle {
             angle: self.angle + (next_frame_state.angle - self.angle) * ratio as f32,
         }
-
     }
 }
 
@@ -115,7 +114,6 @@ impl LinearKeyframe<BodyRotationPoint> for BodyRotationPoint {
             point_x: self.point_x + (next_frame_state.point_x - self.point_x) * ratio as f32,
             point_y: self.point_y + (next_frame_state.point_y - self.point_y) * ratio as f32,
         }
-
     }
 }
 
@@ -127,7 +125,6 @@ pub struct BodySpeed {
 }
 
 impl SteppedKeyframe<BodySpeed> for BodySpeed {}
-
 
 /// This component tracks how many orbits the object has done
 #[derive(Reflect, Clone, Component, Default, PartialEq, Debug)]
