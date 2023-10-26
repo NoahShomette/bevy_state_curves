@@ -9,7 +9,9 @@ The implementation of this crate is focused on compile time curves and integrati
 1. Create a new curve keyframe type
 
 ```rust
-/// Only Clone is needed for the CurveKeyframes. I also recommend `Component` as it is an ergonomic way to handle having the current interpolated state be the state thats on the entity physically
+/// Only Clone is needed for the CurveKeyframes. I also recommend `Component` as it is 
+/// an ergonomic way to handle having the current interpolated state be the state thats 
+/// on the entity physically
 #[derive(Clone)]
 pub struct ObjectRadius {
     radius: f32,
@@ -23,14 +25,15 @@ impl LinearKeyframe<ObjectRadius> for ObjectRadius {
     }
 }
 
-/// Generally only implement one Keyframe type for a specific type of state. Nothing technically stops you from doing all three for one but theres absolutely no reason to do that.
+/// Generally only implement one Keyframe type for a specific type of state. 
+/// Nothing technically stops you from doing all three for one but theres absolutely no reason to do that.
 impl SteppedKeyframe<ObjectRadius> for ObjectRadius {}
 
 impl PulseKeyframe<ObjectRadius> for ObjectRadius {}
 
 ```
 
-2. Insert it into an entity using the right Curve Component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
+2. Insert it into an entity using the right curve component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
 
 ```rust
      commands.entity(entity).insert(LinearCurve<ObjectRadius>::new());
@@ -39,7 +42,7 @@ impl PulseKeyframe<ObjectRadius> for ObjectRadius {}
 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!
 
 ```rust
-    fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>, tick: Res<CurrentGameTick>){
+    fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>){
         for radius in radius_query.iter_mut(){
             radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
             radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
@@ -48,7 +51,7 @@ impl PulseKeyframe<ObjectRadius> for ObjectRadius {}
 
     fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>){
         for radius in radius_query.iter(){
-            let radius_at_tick = body.get_state(5);
+            let radius_at_tick = radius.get_state(5);
             assert_eq!(radius_at_tick, 1.5);
         }
     }
@@ -80,6 +83,7 @@ At this time, current _potential_ ideas for features are:
 - A custom `SystemParam` that is used to spawn and manage curves. Used to drive other features
 - A concept of a `StateLifetime`. Essentially when a state exists in the world. This would be used to drive filtering of global state concepts. Eg reset the world to this tick filtering states by only those that "existed" at this time.
 - More `CurveTrait` functions. No clue yet but I'm sure some more will be needed eventually
+- Reflect and Serde features
 - Tests!!!
 
-Other than Tests and `CurveTrait` functions, these features will most likely not materialize in this crate itself. They are too specific and easier implemented in whatever project is using this crate manually.
+Some of these features will most likely not materialize in this crate itself. They are too specific and easier implemented in whatever project is using this crate manually. Others like tests, serde, and similar will be here quickly.
