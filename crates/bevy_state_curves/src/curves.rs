@@ -77,8 +77,7 @@ impl<T> Curve<T> {
     pub fn prev_keyframe(&self, tick: GameTick) -> Option<(&GameTick, &T)> {
         self.map
             .range((Bound::Unbounded, Bound::Excluded(&tick)))
-            .rev()
-            .next()
+            .next_back()
     }
 }
 
@@ -186,7 +185,7 @@ impl<T: LinearKeyframe<T>> CurveTrait<T> for LinearCurve<T> {
 
         let ratio =
             (tick as f64 - *prev_frame.0 as f64) / (*next_frame.0 as f64 - *prev_frame.0 as f64);
-        Some(prev_frame.1.lerp(&next_frame.1, ratio))
+        Some(prev_frame.1.lerp(next_frame.1, ratio))
     }
 }
 
