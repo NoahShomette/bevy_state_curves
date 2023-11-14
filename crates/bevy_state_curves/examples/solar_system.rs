@@ -1,9 +1,12 @@
+use std::time::Duration;
+
 use bevy::{
     prelude::{
-        default, App, AssetServer, Camera2dBundle, Commands, Component, Entity, FixedTime,
-        FixedUpdate, Query, Res, ResMut, Resource, Startup, Transform, Update, Vec2, Vec3,
+        default, App, AssetServer, Camera2dBundle, Commands, Component, Entity, FixedUpdate, Query,
+        Res, ResMut, Resource, Startup, Transform, Update, Vec2, Vec3,
     },
     sprite::SpriteBundle,
+    time::{Fixed, Time},
     DefaultPlugins,
 };
 use bevy_state_curves::prelude::{
@@ -22,7 +25,7 @@ fn main() {
 
     app.add_plugins((DefaultPlugins, EguiPlugin));
 
-    app.insert_resource(FixedTime::new_from_secs(0.1));
+    app.insert_resource(Time::<Fixed>::from_duration(Duration::from_secs_f32(0.1)));
     app.add_systems(Startup, setup);
     app.add_systems(
         Update,
