@@ -4,58 +4,64 @@ Bevy_State_Curves is an implementation of the state storage and interpolation sy
 
 The implementation of this crate is focused on compile time curves and integration with the ECS. Compile time curves were chosen for the performance factors while ECS because ECS everything.
 
+**Version Compatibility Table:**
+
+| Bevy Version | Crate Version   |
+| ------------ | --------------- |
+| `0.12`       | `0.3.1 - 0.3.3` |
+
 ## Usage
 
 1. Create a new curve keyframe type
 
-```rust
-/// Only Clone is needed for the CurveKeyframes. I also recommend `Component` as it is 
-/// an ergonomic way to handle having the current interpolated state be the state thats 
-/// on the entity physically
-#[derive(Clone)]
-pub struct ObjectRadius {
-    radius: f32,
-}
+   ```rust
+   /// Only Clone is needed for the CurveKeyframes. I also recommend `Component` as it is
+   /// an ergonomic way to handle having the current interpolated state be the state thats
+   /// on the entity physically
+   #[derive(Clone)]
+   pub struct ObjectRadius {
+       radius: f32,
+   }
 
-impl LinearKeyframe<ObjectRadius> for ObjectRadius {
-    fn lerp(&self, next_frame_state: &ObjectRadius, ratio: f64) -> ObjectRadius {
-        ObjectRadius {
-            radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
-        }
-    }
-}
+   impl LinearKeyframe<ObjectRadius> for ObjectRadius {
+       fn lerp(&self, next_frame_state: &ObjectRadius, ratio: f64) -> ObjectRadius {
+           ObjectRadius {
+               radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
+           }
+       }
+   }
 
-/// Generally only implement one Keyframe type for a specific type of state. 
-/// Nothing technically stops you from doing all three for one but theres absolutely no reason to do that.
-impl SteppedKeyframe<ObjectRadius> for ObjectRadius {}
+   /// Generally only implement one Keyframe type for a specific type of state.
+   /// Nothing technically stops you from doing all three for one but theres absolutely no reason to do that.
+   impl SteppedKeyframe<ObjectRadius> for ObjectRadius {}
 
-impl PulseKeyframe<ObjectRadius> for ObjectRadius {}
+   impl PulseKeyframe<ObjectRadius> for ObjectRadius {}
 
-```
+   ```
 
 2. Insert it into an entity using the right curve component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
 
-```rust
-     commands.entity(entity).insert(LinearCurve<ObjectRadius>::new());
-```
+   ```rust
+        commands.entity(entity).insert(LinearCurve<ObjectRadius>::new());
+   ```
 
 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!
 
-```rust
-    fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>){
-        for radius in radius_query.iter_mut(){
-            radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
-            radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
-        }
-    }
+   ```rust
+       fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>){
+           for radius in radius_query.iter_mut(){
+               radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
+               radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
+           }
+       }
 
-    fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>){
-        for radius in radius_query.iter(){
-            let radius_at_tick = radius.get_state(5);
-            assert_eq!(radius_at_tick, 1.5);
-        }
-    }
-```
+       fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>){
+           for radius in radius_query.iter(){
+               let radius_at_tick = radius.get_state(5);
+               assert_eq!(radius_at_tick, 1.5);
+           }
+       }
+   ```
 
 ### GameTick
 
@@ -73,6 +79,11 @@ This crate supports three types of curves. See the docs.rs documentation for eac
   - Flat state between keyframes, state is always the same as the last keyframe.
 - `PulseCurve<T: PulseKeyFrame>`
   - Keyframes are only valid on the tick that they exist on.
+
+## Features
+
+- Serde
+  - Included under the "serde" feature, implements Serialize and Deserialize for all included curve types
 
 ## Future Plans
 

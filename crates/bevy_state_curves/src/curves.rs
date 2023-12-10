@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 /// The generic curve storage. This backs all the specific curve types storages internally
 ///
 /// # Implementing a new curve
+/// 
 /// If you'd like to implement a new curve its as easy as implementing the [`CurveTrait`]
 /// on your new curve type. It's recommended to use this [`Curve`] struct as the basis for your curve storage but
 /// that is not required if you don't want to.
