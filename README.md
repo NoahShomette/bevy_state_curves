@@ -8,7 +8,7 @@ The implementation of this crate is focused on compile time curves and integrati
 
 | Bevy Version | Crate Version   |
 | ------------ | --------------- |
-| `0.12`       | `0.3.1 - 0.3.3` |
+| `0.12`       | `0.3.1 - 0.3.4` |
 
 ## Usage
 
