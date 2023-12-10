@@ -124,6 +124,7 @@ pub trait CurveTrait<T> {
 /// - If there are no past keyframes then no state is returned.
 /// - Otherwise the returned state is a lerped representation of what the state should be on that tick.
 #[derive(Component)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct LinearCurve<T: LinearKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -200,6 +201,7 @@ impl<T: LinearKeyframe<T>> LinearCurve<T> {}
 ///
 /// - State is the last keyframe before that [`GameTick`]
 #[derive(Component)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct SteppedCurve<T: SteppedKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -259,6 +261,7 @@ impl<T: SteppedKeyframe<T>> CurveTrait<T> for SteppedCurve<T> {
 ///
 /// - State only exists on the [`GameTick`] that it was saved under
 #[derive(Component)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct PulseCurve<T: PulseKeyframe<T>> {
     curve: Curve<T>,
 }
