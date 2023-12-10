@@ -7,6 +7,9 @@ use crate::{
     GameTick,
 };
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// The generic curve storage. This backs all the specific curve types storages internally
 ///
 /// # Implementing a new curve
@@ -27,6 +30,7 @@ use crate::{
 ///    /// ... Implementation skipped for brevity. See source docs for examples ...
 ///}
 /// ```
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Curve<V> {
     map: BTreeMap<GameTick, V>,
 }
