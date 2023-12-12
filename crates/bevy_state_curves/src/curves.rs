@@ -10,10 +10,13 @@ use crate::{
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "type_path")]
+use bevy::reflect::TypePath;
+
 /// The generic curve storage. This backs all the specific curve types storages internally
 ///
 /// # Implementing a new curve
-/// 
+///
 /// If you'd like to implement a new curve its as easy as implementing the [`CurveTrait`]
 /// on your new curve type. It's recommended to use this [`Curve`] struct as the basis for your curve storage but
 /// that is not required if you don't want to.
@@ -130,6 +133,7 @@ pub trait CurveTrait<T> {
 /// - Otherwise the returned state is a lerped representation of what the state should be on that tick.
 #[derive(Component)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "type_path", derive(TypePath))]
 pub struct LinearCurve<T: LinearKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -207,6 +211,7 @@ impl<T: LinearKeyframe<T>> LinearCurve<T> {}
 /// - State is the last keyframe before that [`GameTick`]
 #[derive(Component)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "type_path", derive(TypePath))]
 pub struct SteppedCurve<T: SteppedKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -267,6 +272,7 @@ impl<T: SteppedKeyframe<T>> CurveTrait<T> for SteppedCurve<T> {
 /// - State only exists on the [`GameTick`] that it was saved under
 #[derive(Component)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "type_path", derive(TypePath))]
 pub struct PulseCurve<T: PulseKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -308,5 +314,32 @@ impl<T: PulseKeyframe<T>> CurveTrait<T> for PulseCurve<T> {
 
     fn get_state(&self, tick: GameTick) -> Option<T> {
         self.get_keyframe(tick).cloned()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use bevy::reflect::TypePath;
+
+    use crate::prelude::SteppedKeyframe;
+
+    #[derive(Clone, TypePath)]
+    struct Foo;
+    #[derive(Clone, TypePath)]
+    struct Bar;
+
+    impl SteppedKeyframe<Foo> for Foo {}
+
+    impl SteppedKeyframe<Bar> for Bar {}
+
+    #[cfg(feature = "type_path")]
+    #[test]
+    fn test_type_path_equivilancy() {
+        use super::SteppedCurve;
+
+        assert_eq!(
+            SteppedCurve::<Foo>::type_path(),
+            SteppedCurve::<Bar>::type_path()
+        )
     }
 }
