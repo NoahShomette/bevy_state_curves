@@ -84,6 +84,8 @@ This crate supports three types of curves. See the docs.rs documentation for eac
 
 - Serde
   - Included under the "serde" feature, implements Serialize and Deserialize for all included curve types
+- TypePath
+  - Inlcuded under the "type_path" feature. Implements Bevy [TypePath](https://docs.rs/bevy/latest/bevy/reflect/trait.TypePath.html#tymethod.type_path) for all curve types
 
 ## Future Plans
 
@@ -94,7 +96,7 @@ At this time, current _potential_ ideas for features are:
 - A custom `SystemParam` that is used to spawn and manage curves. Used to drive other features
 - A concept of a `StateLifetime`. Essentially when a state exists in the world. This would be used to drive filtering of global state concepts. Eg reset the world to this tick filtering states by only those that "existed" at this time.
 - More `CurveTrait` functions. No clue yet but I'm sure some more will be needed eventually
-- Reflect and Serde features
+- Reflect and Serde features (serde and type path implemented)
 - Tests!!!
 
 Some of these features will most likely not materialize in this crate itself. They are too specific and easier implemented in whatever project is using this crate manually. Others like tests, serde, and similar will be here quickly.

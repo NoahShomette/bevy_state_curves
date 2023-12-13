@@ -337,7 +337,7 @@ mod tests {
     fn test_type_path_equivilancy() {
         use super::SteppedCurve;
 
-        assert_eq!(
+        assert_ne!(
             SteppedCurve::<Foo>::type_path(),
             SteppedCurve::<Bar>::type_path()
         )
