@@ -34,6 +34,7 @@ use bevy::reflect::TypePath;
 ///    /// ... Implementation skipped for brevity. See source docs for examples ...
 ///}
 /// ```
+#[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Curve<V> {
     map: BTreeMap<GameTick, V>,
@@ -131,7 +132,7 @@ pub trait CurveTrait<T> {
 /// - If there are no future keyframes then the last keyframe is used.
 /// - If there are no past keyframes then no state is returned.
 /// - Otherwise the returned state is a lerped representation of what the state should be on that tick.
-#[derive(Component)]
+#[derive(Component, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "type_path", derive(TypePath))]
 pub struct LinearCurve<T: LinearKeyframe<T>> {
@@ -209,7 +210,7 @@ impl<T: LinearKeyframe<T>> LinearCurve<T> {}
 /// until another keyframe is inserted. At that point the state following that keyframe will be that keyframe
 ///
 /// - State is the last keyframe before that [`GameTick`]
-#[derive(Component)]
+#[derive(Component, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "type_path", derive(TypePath))]
 pub struct SteppedCurve<T: SteppedKeyframe<T>> {
@@ -270,7 +271,7 @@ impl<T: SteppedKeyframe<T>> CurveTrait<T> for SteppedCurve<T> {
 /// State in a Pulse curve is instantanious. State is only valid on the [`GameTick`] that it exists on.
 ///
 /// - State only exists on the [`GameTick`] that it was saved under
-#[derive(Component)]
+#[derive(Component, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "type_path", derive(TypePath))]
 pub struct PulseCurve<T: PulseKeyframe<T>> {
