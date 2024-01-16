@@ -1,6 +1,6 @@
 [package]
 name = "bevy_state_curves"
-version = "0.3.6"
+version = "0.3.7"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
