@@ -37,7 +37,6 @@ use bevy::reflect::TypePath;
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Curve<V> {
-    #[cfg_attr(feature = "serde_json", serde(with = "vectorize"))]
     map: BTreeMap<GameTick, V>,
 }
 
