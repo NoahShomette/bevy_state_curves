@@ -66,60 +66,70 @@ impl<T> Curve<T> {
         self.map.get_mut(&tick)
     }
 
-    /// Returns a vec of all keyframes that come ***AFTER*** the given [`GameTick`], excluding any keyframe that may exist on the requested tick
+    /// Returns a vec of all keyframes that come on or ***AFTER*** the given [`GameTick`]
     pub fn iter_future_curves(&self, tick: GameTick) -> Vec<(&GameTick, &T)> {
         self.map
-            .range((Bound::Excluded(&tick), Bound::Unbounded))
+            .range((Bound::Included(&tick), Bound::Unbounded))
             .collect::<Vec<(&GameTick, &T)>>()
     }
 
     /// Mutable version of [`self::iter_future_curves`]
     pub fn iter_future_curves_mut(&mut self, tick: GameTick) -> Vec<(&GameTick, &mut T)> {
         self.map
-            .range_mut((Bound::Excluded(&tick), Bound::Unbounded))
+            .range_mut((Bound::Included(&tick), Bound::Unbounded))
             .collect::<Vec<(&GameTick, &mut T)>>()
     }
 
-    /// Returns the kext keyframe, if it exists, that comes after the given [`GameTick`]
+    /// Returns the kext keyframe, if it exists, that comes on or after the given [`GameTick`]
     pub fn next_keyframe(&self, tick: GameTick) -> Option<(&GameTick, &T)> {
         self.map
-            .range((Bound::Excluded(&tick), Bound::Unbounded))
+            .range((Bound::Included(&tick), Bound::Unbounded))
             .next()
     }
 
     /// Mutable version of [`self::next_keyframe`]
     pub fn next_keyframe_mut(&mut self, tick: GameTick) -> Option<(&GameTick, &mut T)> {
         self.map
-            .range_mut((Bound::Excluded(&tick), Bound::Unbounded))
+            .range_mut((Bound::Included(&tick), Bound::Unbounded))
             .next()
     }
 
-    /// Returns a vec of all keyframes that come ***BEFORE*** the given [`GameTick`], excluding any keyframe that may exist on the requested tick
+    /// Returns a vec of all keyframes that come on or ***BEFORE*** the given [`GameTick`]
     pub fn iter_prev_curves(&self, tick: GameTick) -> Vec<(&GameTick, &T)> {
         self.map
-            .range((Bound::Unbounded, Bound::Excluded(&tick)))
+            .range((Bound::Unbounded, Bound::Included(&tick)))
             .collect::<Vec<(&GameTick, &T)>>()
     }
 
     /// Mutable version of [`self::iter_prev_curves`]
     pub fn iter_prev_curves_mut(&mut self, tick: GameTick) -> Vec<(&GameTick, &mut T)> {
         self.map
-            .range_mut((Bound::Unbounded, Bound::Excluded(&tick)))
+            .range_mut((Bound::Unbounded, Bound::Included(&tick)))
             .collect::<Vec<(&GameTick, &mut T)>>()
     }
 
-    /// Returns the previous keyframe, if it exists, that comes before the given [`GameTick`]
+    /// Returns the previous keyframe, if it exists, that comes on or before the given [`GameTick`]
     pub fn prev_keyframe(&self, tick: GameTick) -> Option<(&GameTick, &T)> {
         self.map
-            .range((Bound::Unbounded, Bound::Excluded(&tick)))
+            .range((Bound::Unbounded, Bound::Included(&tick)))
             .next_back()
     }
 
     /// Mutable version of [`self::prev_keyframe`]
     pub fn prev_keyframe_mut(&mut self, tick: GameTick) -> Option<(&GameTick, &mut T)> {
         self.map
-            .range_mut((Bound::Unbounded, Bound::Excluded(&tick)))
+            .range_mut((Bound::Unbounded, Bound::Included(&tick)))
             .next_back()
+    }
+
+    /// Returns any keyframes on or after the given tick
+    pub fn remove_future_keyframes(&mut self, tick: &GameTick) {
+        self.map.retain(|frame_tick, _| frame_tick < tick);
+    }
+
+    /// Returns any keyframes on or before the given tick
+    pub fn remove_past_keyframes(&mut self, tick: &GameTick) {
+        self.map.retain(|frame_tick, _| frame_tick > tick);
     }
 }
 
@@ -168,6 +178,12 @@ pub trait CurveTrait<T> {
     ///
     /// The implementation and logic of the returned state depends on the exact type of curve. See the curve object for details
     fn get_state(&self, tick: GameTick) -> Option<T>;
+
+    /// Returns any keyframes on or after the given tick
+    fn remove_future_keyframes(&mut self, tick: &GameTick);
+
+    /// Returns any keyframes on or before the given tick
+    fn remove_past_keyframes(&mut self, tick: &GameTick);
 }
 
 /// A Linear curve containing all keyframes that implement [`LinearKeyFrame`]
@@ -266,6 +282,14 @@ impl<T: LinearKeyframe<T>> CurveTrait<T> for LinearCurve<T> {
     fn prev_keyframe_mut(&mut self, tick: GameTick) -> Option<(&GameTick, &mut T)> {
         self.curve.prev_keyframe_mut(tick)
     }
+
+    fn remove_future_keyframes(&mut self, tick: &GameTick) {
+        self.curve.remove_future_keyframes(tick);
+    }
+
+    fn remove_past_keyframes(&mut self, tick: &GameTick) {
+        self.curve.remove_past_keyframes(tick);
+    }
 }
 
 impl<T: LinearKeyframe<T>> LinearCurve<T> {}
@@ -350,6 +374,14 @@ impl<T: SteppedKeyframe<T>> CurveTrait<T> for SteppedCurve<T> {
     fn prev_keyframe_mut(&mut self, tick: GameTick) -> Option<(&GameTick, &mut T)> {
         self.curve.prev_keyframe_mut(tick)
     }
+
+    fn remove_future_keyframes(&mut self, tick: &GameTick) {
+        self.curve.remove_future_keyframes(tick);
+    }
+
+    fn remove_past_keyframes(&mut self, tick: &GameTick) {
+        self.curve.remove_past_keyframes(tick);
+    }
 }
 
 /// A pulse curve containing all keyframes that implement [`PulseKeyframe`]
@@ -423,6 +455,14 @@ impl<T: PulseKeyframe<T>> CurveTrait<T> for PulseCurve<T> {
 
     fn prev_keyframe_mut(&mut self, tick: GameTick) -> Option<(&GameTick, &mut T)> {
         self.curve.prev_keyframe_mut(tick)
+    }
+
+    fn remove_future_keyframes(&mut self, tick: &GameTick) {
+        self.curve.remove_future_keyframes(tick);
+    }
+
+    fn remove_past_keyframes(&mut self, tick: &GameTick) {
+        self.curve.remove_past_keyframes(tick);
     }
 }
 
