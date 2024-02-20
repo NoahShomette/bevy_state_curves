@@ -83,4 +83,5 @@ pub mod prelude {
     pub use super::GameTick;
 }
 
+/// An alias for a u64 representing the type used to drive the state curves.
 pub type GameTick = u64;
