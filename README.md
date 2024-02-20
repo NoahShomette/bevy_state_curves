@@ -1,5 +1,9 @@
 # `bevy_state_curves`
 
+[![Following released Bevy versions](https://img.shields.io/badge/Bevy%20tracking-released%20version-lightblue)](https://bevyengine.org/learn/quick-start/plugin-development/#main-branch-tracking)
+[![crates.io](https://img.shields.io/crates/v/bevy_state_curves)](https://crates.io/crates/bevy_state_curves)
+[![docs.rs](https://docs.rs/bevy_state_curves/badge.svg)](https://docs.rs/bevy_state_curves)
+
 Bevy_State_Curves is an implementation of the state storage and interpolation system described in this [blog post](https://www.forrestthewoods.com/blog/tech_of_planetary_annihilation_chrono_cam/). This system was used in Planetary Annihilation and has some neat features that arise for mostly free from it.
 
 The implementation of this crate is focused on compile time curves and integration with the ECS. Compile time curves were chosen for the performance factors while ECS because ECS everything.
@@ -8,7 +12,7 @@ The implementation of this crate is focused on compile time curves and integrati
 
 | Bevy Version | Crate Version   |
 | ------------ | --------------- |
-| `0.13`       | `0.5.0` |
+| `0.13`       | `0.5.0`         |
 | `0.12`       | `0.3.1 - 0.4.0` |
 
 ## Usage
