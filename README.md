@@ -12,6 +12,7 @@ The implementation of this crate is focused on compile time curves and integrati
 
 | Bevy Version | Crate Version   |
 | ------------ | --------------- |
+| `0.14`       | `0.6.0`         |
 | `0.13`       | `0.5.0`         |
 | `0.12`       | `0.3.1 - 0.4.0` |
 
