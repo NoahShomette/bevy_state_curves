@@ -2,10 +2,10 @@ use std::time::Duration;
 
 use bevy::{
     prelude::{
-        default, App, AssetServer, Camera2dBundle, Commands, Component, Entity, FixedUpdate, Query,
-        Res, ResMut, Resource, Startup, Transform, Update, Vec2, Vec3,
+        default, App, AssetServer, Camera2d, Commands, Component, Entity, FixedUpdate, Query, Res,
+        ResMut, Resource, Startup, Transform, Update, Vec2, Vec3,
     },
-    sprite::SpriteBundle,
+    sprite::Sprite,
     time::{Fixed, Time},
     DefaultPlugins,
 };
@@ -59,7 +59,7 @@ const ORBIT_AMOUNT: u32 = 1;
 const FUTURE_SIMULATION_TICKS: u64 = 300;
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn(Camera2d);
     {
         let mut object_state = BodyCurves::new();
         object_state.rotation_point.insert_keyframe(
@@ -95,12 +95,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
         commands.entity(body).insert((
             object_state,
-            SpriteBundle {
-                texture: asset_server.load("planet_three.png"),
-                transform: Transform::from_scale(Vec3::new(3.0, 3.0, 3.0)),
-
+            Sprite {
+                image: asset_server.load("planet_three.png"),
                 ..default()
             },
+            Transform::from_scale(Vec3::new(3.0, 3.0, 3.0)),
             frames,
         ));
     }
@@ -140,12 +139,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
         commands.entity(body).insert((
             object_state,
-            SpriteBundle {
-                texture: asset_server.load("planet_two.png"),
-                transform: Transform::from_scale(Vec3::new(4.0, 4.0, 4.0)),
-
+            Sprite {
+                image: asset_server.load("planet_two.png"),
                 ..default()
             },
+            Transform::from_scale(Vec3::new(4.0, 4.0, 4.0)),
             frames,
         ));
     }
@@ -185,11 +183,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
         commands.entity(body).insert((
             object_state,
-            SpriteBundle {
-                texture: asset_server.load("planet_one.png"),
-                transform: Transform::from_scale(Vec3::new(2.0, 2.0, 2.0)),
+            Sprite {
+                image: asset_server.load("planet_one.png"),
                 ..default()
             },
+            Transform::from_scale(Vec3::new(2.0, 2.0, 2.0)),
             frames,
         ));
     }
@@ -229,11 +227,11 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
         commands.entity(body).insert((
             object_state,
-            SpriteBundle {
-                texture: asset_server.load("moon.png"),
-                transform: Transform::from_scale(Vec3::new(2.0, 2.0, 2.0)),
+            Sprite {
+                image: asset_server.load("moon.png"),
                 ..default()
             },
+            Transform::from_scale(Vec3::new(2.0, 2.0, 2.0)),
             frames,
         ));
     }
