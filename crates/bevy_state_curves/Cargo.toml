@@ -1,6 +1,6 @@
 [package]
 name = "bevy_state_curves"
-version = "0.6.0"
+version = "0.7.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -16,13 +16,13 @@ type_path = []
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-bevy = { version = "0.14.0", default-features = false }
+bevy = { version = "0.15.0", default-features = false }
 serde = { version = "1.0.203", optional = true, features = ["derive"] }
 
 [dev-dependencies]
-bevy_egui = "0.28.0"
+bevy_egui = "0.31.1"
 criterion = { version = "0.5.1", features = ["html_reports"] }
-bevy = { version = "0.14.0" }
+bevy = { version = "0.15.0" }
 bevy_state_curves = { path = ".", features = ["type_path", "serde"] }
 
 [[bench]]

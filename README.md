@@ -12,6 +12,7 @@ The implementation of this crate is focused on compile time curves and integrati
 
 | Bevy Version | Crate Version   |
 | ------------ | --------------- |
+| `0.15`       | `0.7.0`         |
 | `0.14`       | `0.6.0`         |
 | `0.13`       | `0.5.0`         |
 | `0.12`       | `0.3.1 - 0.4.0` |
@@ -48,7 +49,7 @@ The implementation of this crate is focused on compile time curves and integrati
 2. Insert it into an entity using the right curve component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
 
    ```rust
-        commands.entity(entity).insert(LinearCurve<ObjectRadius>::new());
+        commands.entity(entity).insert(LinearCurve::<ObjectRadius>::new());
    ```
 
 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!

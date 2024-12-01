@@ -8,7 +8,7 @@
 //!
 //! 1. Create a new curve keyframe type
 //!
-//! ```rust
+//! ```rust ignore
 //! /// Only Clone is needed for the CurveKeyframes. I also recommend `Component` as it is
 //! /// an ergonomic way to handle having the current interpolated state be the state thats
 //! /// on the entity physically
@@ -35,13 +35,13 @@
 //!
 //! 2. Insert it into an entity using the right curve component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
 //!
-//! ```rust
-//!      commands.entity(entity).insert(LinearCurve<ObjectRadius>::new());
+//! ```rust ignore
+//!      commands.entity(entity).insert(LinearCurve::<ObjectRadius>::new());
 //! ```
 //!
 //! 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!
 //!
-//! ```rust
+//! ```rust ignore
 //!     fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>){
 //!         for radius in radius_query.iter_mut(){
 //!             radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
