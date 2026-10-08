@@ -15,7 +15,7 @@ use bevy_state_curves::prelude::{
 
 use bevy_egui::{
     egui::{self, Align2, Color32, Frame, Margin, Stroke},
-    EguiContexts, EguiPlugin,
+    EguiContexts, EguiPlugin, EguiPrimaryContextPass,
 };
 
 extern crate bevy_state_curves;
@@ -23,18 +23,16 @@ extern crate bevy_state_curves;
 fn main() {
     let mut app = App::new();
 
-    app.add_plugins((DefaultPlugins, EguiPlugin));
+    app.add_plugins((DefaultPlugins, EguiPlugin::default()));
 
     app.insert_resource(Time::<Fixed>::from_duration(Duration::from_secs_f32(0.1)));
     app.add_systems(Startup, setup);
     app.add_systems(
         Update,
-        (
-            update_body_position,
-            update_body_components_for_viewed_tick,
-            ui,
-        ),
+        (update_body_position, update_body_components_for_viewed_tick),
     );
+
+    app.add_systems(EguiPrimaryContextPass, ui);
     app.add_systems(
         FixedUpdate,
         (update_viewed_tick, simulation_tick, simulate_bodies),
@@ -457,10 +455,10 @@ fn ui(
         fill: Color32::from_rgba_unmultiplied(0, 0, 0, 255),
         stroke: Stroke::new(0., Color32::WHITE),
         inner_margin: Margin {
-            left: 5.0,
-            right: 5.0,
-            top: 5.0,
-            bottom: 5.0,
+            left: 5,
+            right: 5,
+            top: 5,
+            bottom: 5,
         },
         ..default()
     };
@@ -470,7 +468,7 @@ fn ui(
         .resizable(true)
         .collapsible(true)
         .title_bar(true)
-        .show(egui_context.ctx_mut(), |ui| {
+        .show(egui_context.ctx_mut().unwrap(), |ui| {
             ui.label(format!("Simulation Tick: {:?}", simulation_tick.0));
             ui.label(format!("Viewed Tick: {:?}", viewed_tick.0));
 
