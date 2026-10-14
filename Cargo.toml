@@ -20,7 +20,7 @@ lto = true
 codegen-units = 1
 
 [workspace]
-members = ["crates/bevy_state_curves", "crates/derive_macros"]
+members = ["crates/bevy_state_curves", "crates/bsc_derive_macros"]
 # exclude = ["dist", "build", "assets", "credits"]
 default-members = ["crates/bevy_state_curves"]
 resolver = "2"

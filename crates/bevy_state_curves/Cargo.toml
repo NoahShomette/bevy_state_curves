@@ -17,7 +17,7 @@ type_path = []
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 bevy = { version = "0.19", default-features = false }
-derive_macros = { version = "0.1.0", path = "../derive_macros" }
+bsc_derive_macros = { version = "0.1.0", path = "../bsc_derive_macros" }
 serde = { version = "1.0.203", optional = true, features = ["derive"] }
 
 [dev-dependencies]

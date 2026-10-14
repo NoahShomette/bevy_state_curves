@@ -1,5 +1,5 @@
 [package]
-name = "derive_macros"
+name = "bsc_derive_macros"
 version = "0.1.0"
 authors.workspace = true
 edition.workspace = true
