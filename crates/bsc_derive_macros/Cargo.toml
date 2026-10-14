@@ -6,7 +6,6 @@ edition.workspace = true
 license.workspace = true
 license-file.workspace = true
 documentation.workspace = true
-homepage.workspace = true
 repository.workspace = true
 description.workspace = true
 readme.workspace = true
