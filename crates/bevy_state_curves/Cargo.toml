@@ -30,4 +30,4 @@ name = "benchmarks"
 harness = false
 
 [package.metadata.docs.rs]
-cargo-args = ["--config", "env.CARGO_WORKSPACE_DIR=\"\""]
+cargo-args = ["--config", "env.CARGO_WORKSPACE_DIR=\"../../\""]
