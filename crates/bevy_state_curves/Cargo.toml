@@ -28,6 +28,3 @@ bevy_state_curves = { path = ".", features = ["type_path", "serde"] }
 [[bench]]
 name = "benchmarks"
 harness = false
-
-[package.metadata.docs.rs]
-cargo-args = ["--config", "env.CARGO_WORKSPACE_DIR=\"../\""]
