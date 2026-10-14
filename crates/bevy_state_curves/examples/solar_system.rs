@@ -412,36 +412,23 @@ impl LinearKeyframe<BodyRadius> for BodyRadius {
 }
 
 /// This component tracks the position that this body is rotating around
-#[derive(Clone, Component)]
+#[derive(Clone, Component, LinearKeyframe)]
 pub struct BodyRotationPoint {
     point_x: f32,
     point_y: f32,
 }
 
-impl LinearKeyframe<BodyRotationPoint> for BodyRotationPoint {
-    fn lerp(&self, next_frame_state: &BodyRotationPoint, ratio: f64) -> BodyRotationPoint {
-        BodyRotationPoint {
-            point_x: self.point_x + (next_frame_state.point_x - self.point_x) * ratio as f32,
-            point_y: self.point_y + (next_frame_state.point_y - self.point_y) * ratio as f32,
-        }
-    }
-}
-
 /// This component represents how many ticks it takes to complete a full orbit
-#[derive(Clone, Component)]
+#[derive(Clone, Component, SteppedKeyframe)]
 pub struct BodySpeed {
     speed: u32,
 }
 
-impl SteppedKeyframe<BodySpeed> for BodySpeed {}
-
 /// This component tracks how many orbits the object has done
-#[derive(Clone, Component)]
+#[derive(Clone, Component, SteppedKeyframe)]
 pub struct BodyOrbit {
     orbits: u32,
 }
-
-impl SteppedKeyframe<BodyOrbit> for BodyOrbit {}
 
 fn ui(
     mut egui_context: EguiContexts,

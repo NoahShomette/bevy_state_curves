@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     bevy-flake = {
-      url = "github:swagtop/bevy-flake";
+      url = "github:noahshomette/bevy-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     fenix = {
@@ -62,8 +62,10 @@
               ]);
           };
 
+
           devEnvironment = pkgs.lib.optionalAttrs pkgs.stdenv.isLinux {
             RUSTFLAGS = "-C link-arg=-fuse-ld=${pkgs.mold}/bin/mold";
+            RUSTDOCFLAGS = "-C link-arg=-fuse-ld=${pkgs.mold}/bin/mold";
           };
 
           rustToolchain =

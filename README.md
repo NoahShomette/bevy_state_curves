@@ -12,6 +12,7 @@ The implementation of this crate is focused on compile time curves and integrati
 
 | Bevy Version | Crate Version   |
 | ------------ | --------------- |
+| `0.19`       | `0.8.0`         |
 | `0.15`       | `0.7.0`         |
 | `0.14`       | `0.6.0`         |
 | `0.13`       | `0.5.0`         |
@@ -22,52 +23,74 @@ The implementation of this crate is focused on compile time curves and integrati
 1. Create a new curve keyframe type
 
    ```rust
+   # use bevy_state_curves::prelude::{LinearKeyframe, SteppedKeyframe, PulseKeyframe};
    /// Only Clone is needed for the CurveKeyframes. I also recommend `Component` as it is
    /// an ergonomic way to handle having the current interpolated state be the state thats
    /// on the entity physically
-   #[derive(Clone)]
+   /// ---
+   /// Generally only implement one Keyframe type for a specific type of state.
+   /// Nothing technically stops you from doing all three for one but theres generally no reason to do that.
+   #[derive(Clone, LinearKeyframe, SteppedKeyframe, PulseKeyframe)]
    pub struct ObjectRadius {
        radius: f32,
    }
 
-   impl LinearKeyframe<ObjectRadius> for ObjectRadius {
-       fn lerp(&self, next_frame_state: &ObjectRadius, ratio: f64) -> ObjectRadius {
-           ObjectRadius {
-               radius: self.radius + (next_frame_state.radius - self.radius) * ratio as f32,
+
+   /// If you need to manually implement LinearKeyframe heres a simple example to help
+   #[derive(Clone)]
+   pub struct ObjectTransform {
+       x: f32,
+       y: f32,
+   }
+
+   impl LinearKeyframe<ObjectTransform> for ObjectTransform {
+       fn lerp(&self, next_frame_state: &ObjectTransform, ratio: f64) -> ObjectTransform {
+           ObjectTransform {
+               x: self.x + (next_frame_state.x - self.x) * ratio as f32,
+               y: self.y + (next_frame_state.y - self.y) * ratio as f32,
            }
        }
    }
-
-   /// Generally only implement one Keyframe type for a specific type of state.
-   /// Nothing technically stops you from doing all three for one but theres absolutely no reason to do that.
-   impl SteppedKeyframe<ObjectRadius> for ObjectRadius {}
-
-   impl PulseKeyframe<ObjectRadius> for ObjectRadius {}
 
    ```
 
 2. Insert it into an entity using the right curve component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
 
    ```rust
-        commands.entity(entity).insert(LinearCurve::<ObjectRadius>::new());
+    # use bevy_state_curves::prelude::{LinearCurve, LinearKeyframe, CurveTrait};
+    #  #[derive(Clone, LinearKeyframe)]
+    # pub struct ObjectRadius {
+    #    radius: f32,
+    # }
+    # use bevy::prelude::*;
+    # fn system(mut commands: Commands) {
+    # let entity = Entity::PLACEHOLDER;
+    commands.entity(entity).insert(LinearCurve::<ObjectRadius>::new());
+    # }
    ```
 
 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!
 
    ```rust
-       fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>){
-           for radius in radius_query.iter_mut(){
-               radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
-               radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
-           }
-       }
+    # use bevy_state_curves::prelude::{LinearCurve, LinearKeyframe, CurveTrait};
+    #  #[derive(Clone, LinearKeyframe, Debug, PartialEq)]
+    # pub struct ObjectRadius {
+    #    radius: f32,
+    # }
+    # use bevy::prelude::*;
+    fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>>){
+        for mut radius in radius_query.iter_mut(){
+            radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
+            radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
+        }
+    }
 
-       fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>){
-           for radius in radius_query.iter(){
-               let radius_at_tick = radius.get_state(5);
-               assert_eq!(radius_at_tick, 1.5);
-           }
-       }
+    fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>>){
+        for radius in radius_query.iter(){
+            let radius_at_tick = radius.get_state(5);
+            assert_eq!(radius_at_tick.unwrap().radius, 1.5);
+        }
+    }
    ```
 
 ### GameTick

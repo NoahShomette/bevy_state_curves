@@ -483,7 +483,7 @@ mod tests {
 
     #[cfg(feature = "type_path")]
     #[test]
-    fn test_type_path_equivilancy() {
+    fn test_type_path_not_equivilancy() {
         use super::SteppedCurve;
 
         assert_ne!(
