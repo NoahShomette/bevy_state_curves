@@ -57,7 +57,6 @@
 //!     ```
 //!
 //! 2. Insert it into an entity using the right curve component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
-//!
 //!     ```rust
 //!     # use bevy_state_curves::prelude::{LinearCurve, LinearKeyframe, CurveTrait};
 //!     #  #[derive(Clone, LinearKeyframe)]
@@ -72,7 +71,6 @@
 //!     ```
 //!
 //! 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!
-//!
 //!     ```rust
 //!     # use bevy_state_curves::prelude::{LinearCurve, LinearKeyframe, CurveTrait};
 //!     #  #[derive(Clone, LinearKeyframe, Debug, PartialEq)]

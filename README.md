@@ -62,21 +62,21 @@ The implementation of this crate is focused on compile time curves and integrati
 
 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!
 
-```rust, ignore
-  fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>>){
-      for mut radius in radius_query.iter_mut(){
-          radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
-          radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
-      }
-  }
+  ```rust, ignore
+    fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>>){
+        for mut radius in radius_query.iter_mut(){
+            radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
+            radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
+        }
+    }
 
-  fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>>){
-    for radius in radius_query.iter(){
-        let radius_at_tick = radius.get_state(5);
-        assert_eq!(radius_at_tick.unwrap().radius, 1.5);
-      }
-  }
-```
+    fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>>){
+        for radius in radius_query.iter(){
+            let radius_at_tick = radius.get_state(5);
+            assert_eq!(radius_at_tick.unwrap().radius, 1.5);
+        }
+    }
+    ```
 
 ### GameTick
 
@@ -100,7 +100,7 @@ This crate supports three types of curves. See the docs.rs documentation for eac
 - Serde
   - Included under the "serde" feature, implements Serialize and Deserialize for all included curve types
 - TypePath
-  - Included under the "type_path" feature. Implements Bevy [TypePath](https://docs.rs/bevy/latest/bevy/reflect/trait.TypePath.html#tymethod.type_path) for all curve types
+  - Included  under the "type_path" feature. Implements Bevy [TypePath](https://docs.rs/bevy/latest/bevy/reflect/trait.TypePath.html#tymethod.type_path) for all curve types
 
 ## Future Plans
 
