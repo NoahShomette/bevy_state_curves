@@ -57,25 +57,25 @@ The implementation of this crate is focused on compile time curves and integrati
 2. Insert it into an entity using the right curve component type for your curve type. `LinearCurve<ObjectRadius>`, `PulseCurve<ObjectRadius>`, or `SteppedCurve<ObjectRadius>`.
 
    ```rust, ignore
-    commands.entity(entity).insert(LinearCurve::<ObjectRadius>::new());
+   commands.entity(entity).insert(LinearCurve::<ObjectRadius>::new());
    ```
 
 3. Add/remove keyframes using the curve as a normal component on an entity. Get state in a normal system using normal queries!
 
    ```rust, ignore
-     fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>>){
-         for mut radius in radius_query.iter_mut(){
-             radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
-             radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
-         }
-     }
+   fn insert_keyframes(mut radius_query: Query<&mut LinearCurve<ObjectRadius>>){
+       for mut radius in radius_query.iter_mut(){
+           radius.insert_keyframe(1, ObjectRadius{radius: 1.0});
+           radius.insert_keyframe(10, ObjectRadius{radius: 2.0});
+       }
+   }
 
-     fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>>){
-         for radius in radius_query.iter(){
-             let radius_at_tick = radius.get_state(5);
-             assert_eq!(radius_at_tick.unwrap().radius, 1.5);
-         }
-     }
+   fn curve_entity_system(radius_query: Query<&LinearCurve<ObjectRadius>>){
+       for radius in radius_query.iter(){
+           let radius_at_tick = radius.get_state(5);
+           assert_eq!(radius_at_tick.unwrap().radius, 1.5);
+       }
+   }
    ```
 
 ### GameTick
