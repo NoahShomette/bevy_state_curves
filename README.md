@@ -76,7 +76,7 @@ The implementation of this crate is focused on compile time curves and integrati
             assert_eq!(radius_at_tick.unwrap().radius, 1.5);
         }
     }
-    ```
+  ```
 
 ### GameTick
 
