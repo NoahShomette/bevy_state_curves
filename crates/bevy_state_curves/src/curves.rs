@@ -13,6 +13,9 @@ use serde::{Deserialize, Serialize};
 #[cfg(feature = "type_path")]
 use bevy::reflect::TypePath;
 
+#[cfg(feature = "reflect")]
+use bevy::reflect::Reflect;
+
 /// The generic curve storage. This backs all the specific curve types storages internally
 ///
 /// # Implementing a new curve
@@ -36,6 +39,7 @@ use bevy::reflect::TypePath;
 /// ```
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "reflect", derive(Reflect))]
 pub struct Curve<V> {
     map: BTreeMap<GameTick, V>,
 }
@@ -198,7 +202,8 @@ pub trait CurveTrait<T> {
 /// - Otherwise the returned state is a lerped representation of what the state should be on that tick.
 #[derive(Component, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "type_path", derive(TypePath))]
+#[cfg_attr(all(feature = "type_path", not(feature = "reflect")), derive(TypePath))]
+#[cfg_attr(feature = "reflect", derive(Reflect))]
 pub struct LinearCurve<T: LinearKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -304,7 +309,8 @@ impl<T: LinearKeyframe<T>> LinearCurve<T> {}
 /// - State is the last keyframe before that [`GameTick`]
 #[derive(Component, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "type_path", derive(TypePath))]
+#[cfg_attr(all(feature = "type_path", not(feature = "reflect")), derive(TypePath))]
+#[cfg_attr(feature = "reflect", derive(Reflect))]
 pub struct SteppedCurve<T: SteppedKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -393,7 +399,8 @@ impl<T: SteppedKeyframe<T>> CurveTrait<T> for SteppedCurve<T> {
 /// - State only exists on the [`GameTick`] that it was saved under
 #[derive(Component, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "type_path", derive(TypePath))]
+#[cfg_attr(all(feature = "type_path", not(feature = "reflect")), derive(TypePath))]
+#[cfg_attr(feature = "reflect", derive(Reflect))]
 pub struct PulseCurve<T: PulseKeyframe<T>> {
     curve: Curve<T>,
 }

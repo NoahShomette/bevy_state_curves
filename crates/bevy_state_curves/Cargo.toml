@@ -12,6 +12,7 @@ readme.workspace = true
 [features]
 serde = ["dep:serde"]
 type_path = []
+reflect = ["type_path"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
@@ -23,7 +24,7 @@ serde = { version = "1.0.203", optional = true, features = ["derive"] }
 bevy_egui = "0.43"
 criterion = { version = "0.8", features = ["html_reports"] }
 bevy = { version = "0.20" }
-bevy_state_curves = { path = ".", features = ["type_path", "serde"] }
+bevy_state_curves = { path = ".", features = ["type_path", "serde", "reflect"] }
 
 [[bench]]
 name = "benchmarks"
