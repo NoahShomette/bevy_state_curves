@@ -7,14 +7,16 @@ use crate::{
     GameTick,
 };
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 #[cfg(feature = "type_path")]
 use bevy::reflect::TypePath;
 
 #[cfg(feature = "reflect")]
+use bevy::ecs::reflect::ReflectComponent;
+#[cfg(feature = "reflect")]
 use bevy::reflect::Reflect;
+
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// The generic curve storage. This backs all the specific curve types storages internally
 ///
@@ -204,6 +206,7 @@ pub trait CurveTrait<T> {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(all(feature = "type_path", not(feature = "reflect")), derive(TypePath))]
 #[cfg_attr(feature = "reflect", derive(Reflect))]
+#[cfg_attr(feature = "reflect", reflect(Component))]
 pub struct LinearCurve<T: LinearKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -311,6 +314,7 @@ impl<T: LinearKeyframe<T>> LinearCurve<T> {}
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(all(feature = "type_path", not(feature = "reflect")), derive(TypePath))]
 #[cfg_attr(feature = "reflect", derive(Reflect))]
+#[cfg_attr(feature = "reflect", reflect(Component))]
 pub struct SteppedCurve<T: SteppedKeyframe<T>> {
     curve: Curve<T>,
 }
@@ -401,6 +405,7 @@ impl<T: SteppedKeyframe<T>> CurveTrait<T> for SteppedCurve<T> {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(all(feature = "type_path", not(feature = "reflect")), derive(TypePath))]
 #[cfg_attr(feature = "reflect", derive(Reflect))]
+#[cfg_attr(feature = "reflect", reflect(Component))]
 pub struct PulseCurve<T: PulseKeyframe<T>> {
     curve: Curve<T>,
 }
